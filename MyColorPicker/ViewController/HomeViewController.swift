@@ -181,16 +181,18 @@ extension HomeViewController {
 extension HomeViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
     
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-        guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
-        let ciImage = CIImage(cvImageBuffer: pixelBuffer)
-        let context = CIContext(options: nil)
-        guard let cgImage = context.createCGImage(ciImage, from: ciImage.extent) else {
-            fatalError("CreateCGImage fail")
-        }
         
         let currentTime = Date().timeIntervalSinceReferenceDate
         let throttleIntervalAsDouble = Double(throttleInterval)
+        
         if currentTime - lastCaptureTime >= throttleIntervalAsDouble {
+            guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
+            let ciImage = CIImage(cvImageBuffer: pixelBuffer)
+            let context = CIContext(options: nil)
+            guard let cgImage = context.createCGImage(ciImage, from: ciImage.extent) else {
+                fatalError("CreateCGImage fail")
+            }
+            
             lastCaptureTime = currentTime
             updateColorResult(cgImage)
         }
